@@ -2,7 +2,8 @@
 import { useState } from "react";
 import { CandidateRow } from "./CandidateRow";
 import type { LeaderboardEntry } from "@/types";
-import { cn } from "@/lib/utils";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card } from "@/components/ui/card";
 
 interface LeaderboardTableProps { entries: LeaderboardEntry[] }
 
@@ -32,42 +33,41 @@ export function LeaderboardTable({ entries: initialEntries }: LeaderboardTablePr
   };
 
   const ColHeader = ({ k, label }: { k: SortKey; label: string }) => (
-    <button onClick={() => handleSort(k)} className="text-[13px] font-medium flex items-center gap-1 hover:underline transition-colors text-[#1A1A18] text-left">
+    <button onClick={() => handleSort(k)} className="flex items-center gap-1 hover:text-foreground transition-colors outline-none">
       {label}{sortKey === k ? (asc ? " ↑" : " ↓") : ""}
     </button>
   );
 
   if (entries.length === 0) {
     return (
-      <div className="py-16">
-        <p className="text-[13px] font-medium text-[#1A1A18] mb-1">No applications yet</p>
-        <p className="text-[13px] text-[#6B7280]">Candidates who apply will appear here ranked by learning velocity.</p>
-      </div>
+      <Card className="py-16 flex flex-col items-center shadow-none bg-muted/20 border-dashed">
+        <p className="text-sm font-medium text-foreground mb-1">No applications yet</p>
+        <p className="text-sm text-muted-foreground">Candidates who apply will appear here ranked by learning velocity.</p>
+      </Card>
     );
   }
 
   return (
-    <div className="border border-[#E5E5E3] bg-[#FAFAF9]">
-      {/* Header */}
-      <div
-        className="grid px-4 py-3 sticky top-0 z-10 bg-[#FAFAF9] border-b border-[#1A1A18]"
-        style={{ gridTemplateColumns: "40px minmax(150px, 1fr) 80px 80px 80px 100px 120px 80px" }}
-      >
-        <span className="text-[13px] font-medium text-[#1A1A18]">#</span>
-        <span className="text-[13px] font-medium text-[#1A1A18]">Candidate</span>
-        <ColHeader k="hybrid" label="Score" />
-        <ColHeader k="velocity" label="Vel." />
-        <ColHeader k="adjacency" label="Adj." />
-        <span className="text-[13px] font-medium text-[#1A1A18]">ETA</span>
-        <span className="text-[13px] font-medium text-[#1A1A18]">Bias</span>
-        <span className="text-[13px] font-medium text-[#1A1A18]">Action</span>
-      </div>
-
-      <div>
-        {sorted.map((entry) => (
-          <CandidateRow key={entry.id} entry={entry} onStatusChange={handleStatusChange} />
-        ))}
-      </div>
+    <div className="rounded-md border bg-card overflow-x-auto">
+      <Table className="min-w-[700px] md:min-w-full">
+        <TableHeader className="bg-muted/50">
+          <TableRow>
+            <TableHead className="w-12">#</TableHead>
+            <TableHead>Candidate</TableHead>
+            <TableHead><ColHeader k="hybrid" label="Score" /></TableHead>
+            <TableHead><ColHeader k="velocity" label="Vel." /></TableHead>
+            <TableHead><ColHeader k="adjacency" label="Adj." /></TableHead>
+            <TableHead>ETA</TableHead>
+            <TableHead>Bias</TableHead>
+            <TableHead className="text-right pr-4">Action</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sorted.map((entry) => (
+            <CandidateRow key={entry.id} entry={entry} onStatusChange={handleStatusChange} />
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }

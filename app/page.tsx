@@ -1,6 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { buttonVariants } from '@/components/ui/button-variants';
 
 export default async function LandingPage() {
   const supabase = await createServerClient();
@@ -14,8 +15,8 @@ export default async function LandingPage() {
     <div className="min-h-screen bg-[#FAFAF9] text-[#1A1A18] font-sans">
       
       {/* Navbar */}
-      <nav className="h-[52px] bg-[#FAFAF9] border-b border-[#E5E5E3] w-full">
-        <div className="max-w-[1080px] mx-auto px-[48px] h-full flex items-center justify-between">
+      <nav className="h-[52px] bg-[#FAFAF9] border-b border-[#E5E5E3] w-full sticky top-0 z-50">
+        <div className="max-w-[1080px] mx-auto px-6 md:px-[48px] h-full flex items-center justify-between">
           <div className="flex items-center gap-[8px]">
             <span className="font-mono text-[13px] font-semibold text-[#1A1A18]">SV</span>
             <span className="text-[14px] font-medium text-[#1A1A18]">SkillVelocity</span>
@@ -24,7 +25,7 @@ export default async function LandingPage() {
             <Link href="/login" className="text-[13px] text-[#6B7280]">
               Log in
             </Link>
-            <Link href="/signup" className="h-[32px] px-[16px] bg-[#1A1A18] text-white text-[12px] uppercase tracking-[0.06em] rounded-[2px] flex items-center justify-center">
+            <Link href="/signup" className={buttonVariants({ size: 'sm', className: 'uppercase tracking-[0.06em] rounded-[2px]' })}>
               Get Started
             </Link>
           </div>
@@ -32,18 +33,18 @@ export default async function LandingPage() {
       </nav>
 
       {/* Main Container */}
-      <main className="max-w-[1080px] mx-auto px-[48px]">
+      <main className="max-w-[1080px] mx-auto px-6 md:px-[48px]">
         
         {/* Hero Section */}
-        <div className="pt-[96px] pb-[80px] grid grid-cols-2 gap-[64px] items-start">
+        <div className="pt-16 md:pt-[96px] pb-12 md:pb-[80px] grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-[64px] items-start">
           
           {/* Left Hero Text */}
           <div>
             <div className="text-[11px] uppercase tracking-[0.1em] text-[#9CA3AF] mb-[16px]">
               HIRING INTELLIGENCE · LEARNING TRAJECTORY
             </div>
-            <h1 className="text-[56px] font-medium leading-[1.15] text-[#1A1A18]">
-              Hire for <span className="text-[#D97706]">velocity.</span><br />
+            <h1 className="text-4xl md:text-[56px] font-medium leading-[1.15] text-[#1A1A18]">
+              Hire for <span className="text-[#D97706]">velocity.</span><br className="hidden md:block" />
               Not just inventory.
             </h1>
             <p className="text-[17px] font-normal text-[#6B7280] max-w-[480px] leading-[1.7] mt-[24px]">
@@ -51,17 +52,17 @@ export default async function LandingPage() {
               SkillVelocity asks how fast they'll know what you need tomorrow.
             </p>
             <div className="mt-[32px] flex items-center gap-[12px]">
-              <Link href="/signup" className="h-[36px] px-[20px] bg-[#1A1A18] text-white text-[13px] rounded-[2px] flex items-center justify-center">
+              <Link href="/signup" className={buttonVariants({ className: 'rounded-[2px]' })}>
                 Start Hiring
               </Link>
-              <Link href="/signup" className="h-[36px] px-[20px] bg-transparent border border-[#D1D5DB] text-[#1A1A18] text-[13px] rounded-[2px] flex items-center justify-center">
+              <Link href="/signup" className={buttonVariants({ variant: 'outline', className: 'rounded-[2px]' })}>
                 I'm a Candidate
               </Link>
             </div>
           </div>
 
           {/* Right Hero Mockup */}
-          <div className="border border-[#E5E5E3] rounded-[4px] p-[20px] bg-[#FFFFFF] mt-2">
+          <div className="border border-[#E5E5E3] rounded-[4px] p-4 md:p-[20px] bg-[#FFFFFF] mt-2 hidden sm:block">
             <div className="flex justify-between items-center mb-[24px]">
               <div className="text-[11px] font-mono text-[#6B7280] uppercase">TOP CANDIDATES — Rust Developer</div>
               <div className="text-[11px] font-mono text-[#9CA3AF]">[Run Ranking]</div>
@@ -110,8 +111,8 @@ export default async function LandingPage() {
         </div>
 
         {/* Feature Strip */}
-        <div className="mt-[80px] border-t border-[#E5E5E3] pt-[48px]">
-          <div className="grid grid-cols-3 gap-[48px]">
+        <div className="mt-12 md:mt-[80px] border-t border-[#E5E5E3] pt-12 md:pt-[48px]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-[48px]">
             <div>
               <div className="text-[11px] uppercase text-[#9CA3AF] mb-[8px]">SIGNAL 01</div>
               <h3 className="text-[16px] font-medium text-[#1A1A18] mb-[8px]">Learning Velocity Score</h3>
@@ -137,18 +138,18 @@ export default async function LandingPage() {
         </div>
 
         {/* One Stat Section */}
-        <div className="mt-[80px] border-y border-[#E5E5E3] py-[48px]">
-          <div className="grid grid-cols-3 divide-x divide-[#E5E5E3]">
-            <div className="pl-0 pr-[48px]">
-              <div className="text-[48px] font-mono font-medium text-[#1A1A18] leading-none">0.6×</div>
+        <div className="mt-12 md:mt-[80px] border-y border-[#E5E5E3] py-12 md:py-[48px]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0 divide-y md:divide-y-0 md:divide-x divide-[#E5E5E3]">
+            <div className="pl-0 pr-0 md:pr-[48px] pb-8 md:pb-0">
+              <div className="text-5xl md:text-[48px] font-mono font-medium text-[#1A1A18] leading-none">0.6×</div>
               <div className="text-[12px] text-[#9CA3AF] mt-[6px]">velocity weight</div>
             </div>
-            <div className="pl-[48px] pr-[48px]">
-              <div className="text-[48px] font-mono font-medium text-[#1A1A18] leading-none">91%</div>
+            <div className="pl-0 md:pl-[48px] pr-0 md:pr-[48px] py-8 md:py-0">
+              <div className="text-5xl md:text-[48px] font-mono font-medium text-[#1A1A18] leading-none">91%</div>
               <div className="text-[12px] text-[#9CA3AF] mt-[6px]">bias check pass rate</div>
             </div>
-            <div className="pl-[48px] pr-0">
-              <div className="text-[48px] font-mono font-medium text-[#1A1A18] leading-none">2.5 wks</div>
+            <div className="pl-0 md:pl-[48px] pr-0 pt-8 md:pt-0">
+              <div className="text-5xl md:text-[48px] font-mono font-medium text-[#1A1A18] leading-none">2.5 wks</div>
               <div className="text-[12px] text-[#9CA3AF] mt-[6px]">avg time-to-productivity</div>
             </div>
           </div>

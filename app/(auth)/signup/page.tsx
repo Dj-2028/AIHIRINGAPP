@@ -3,6 +3,13 @@
 import { useState } from 'react';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 
 export default function SignupPage() {
@@ -37,22 +44,23 @@ export default function SignupPage() {
       if (authError) throw authError;
 
       if (authData.user) {
-        // Wait briefly to ensure the database trigger creates the users row
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
         let targetPath = '/dashboard';
 
         if (role === 'recruiter' && orgName) {
           const newOrgId = crypto.randomUUID();
           
-          // Create organization (no .select() to avoid read RLS violation)
+          // Create organization
           const { error: orgError } = await supabase
             .from('organizations')
             .insert({ id: newOrgId, name: orgName });
 
           if (orgError) throw orgError;
 
-          // Update user with correct column 'org_id'
+          // Update user - The trigger has already created the users row
+          // We don't need a timeout if we use a small retry or just wait for trigger success implicitly
+          // For now, even a small 500ms is safer than 1000ms if we must, 
+          // but better to actually check or use a server-side action.
+          // However, keeping it simple for current architecture.
           const { error: updateError } = await supabase
             .from('users')
             .update({ org_id: newOrgId })
@@ -60,12 +68,7 @@ export default function SignupPage() {
 
           if (updateError) throw updateError;
         } else if (role === 'candidate') {
-          // Create candidate profile
-          const { error: candidateError } = await supabase
-            .from('candidates')
-            .insert({ user_id: authData.user.id });
-
-          if (candidateError) throw candidateError;
+          // Candidate row is now handled by the database trigger handle_new_user()
           targetPath = '/profile/setup';
         }
 
@@ -80,136 +83,102 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#FAFAF9]">
-      <div className="w-full max-w-sm space-y-8">
-        <div>
-          <h2 className="text-2xl font-medium tracking-tight text-[#1A1A18]">
-            Create account
-          </h2>
-          <p className="mt-2 text-[13px] text-[#6B7280]">
-            SkillVelocity / High-Signal Hiring
-          </p>
-        </div>
-
-        <form className="mt-8 space-y-6" onSubmit={handleSignup}>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-[13px] font-medium text-[#1A1A18]">I am a...</label>
-              <div className="mt-2 flex gap-0 border border-[#E5E5E3]">
-                <button
-                  type="button"
-                  onClick={() => setRole('candidate')}
-                  className={`flex-1 py-2 text-[13px] font-medium transition-colors ${
-                    role === 'candidate'
-                      ? 'bg-[#1A1A18] text-[#FAFAF9]'
-                      : 'bg-transparent text-[#6B7280] hover:bg-[#F5F5F3]'
-                  }`}
-                >
-                  Candidate
-                </button>
-                <div className="w-[1px] bg-[#E5E5E3]" />
-                <button
-                  type="button"
-                  onClick={() => setRole('recruiter')}
-                  className={`flex-1 py-2 text-[13px] font-medium transition-colors ${
-                    role === 'recruiter'
-                      ? 'bg-[#1A1A18] text-[#FAFAF9]'
-                      : 'bg-transparent text-[#6B7280] hover:bg-[#F5F5F3]'
-                  }`}
-                >
-                  Recruiter
-                </button>
+    <div className="flex min-h-screen items-center justify-center p-4 bg-background">
+      <Card className="w-full max-w-sm">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-medium tracking-tight">Create account</CardTitle>
+          <CardDescription>SkillVelocity / High-Signal Hiring</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-6" onSubmit={handleSignup}>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>I am a...</Label>
+                <Tabs value={role} onValueChange={(v) => setRole(v as 'recruiter' | 'candidate')} className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="candidate">Candidate</TabsTrigger>
+                    <TabsTrigger value="recruiter">Recruiter</TabsTrigger>
+                  </TabsList>
+                </Tabs>
               </div>
-            </div>
 
-            <div>
-              <label htmlFor="fullName" className="block text-[13px] font-medium text-[#1A1A18]">
-                Full Name
-              </label>
-              <input
-                id="fullName"
-                type="text"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="mt-1 block w-full rounded-none border border-[#E5E5E3] bg-[#FAFAF9] px-3 py-2 text-[#1A1A18] placeholder-[#6B7280] focus:border-[#1A1A18] focus:outline-none focus:ring-1 focus:ring-[#1A1A18] sm:text-[13px]"
-                placeholder="John Doe"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-[13px] font-medium text-[#1A1A18]">
-                Email address
-              </label>
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full rounded-none border border-[#E5E5E3] bg-[#FAFAF9] px-3 py-2 text-[#1A1A18] placeholder-[#6B7280] focus:border-[#1A1A18] focus:outline-none focus:ring-1 focus:ring-[#1A1A18] sm:text-[13px]"
-                placeholder="you@example.com"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-[13px] font-medium text-[#1A1A18]">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-none border border-[#E5E5E3] bg-[#FAFAF9] px-3 py-2 text-[#1A1A18] placeholder-[#6B7280] focus:border-[#1A1A18] focus:outline-none focus:ring-1 focus:ring-[#1A1A18] sm:text-[13px]"
-              />
-            </div>
-
-            {role === 'recruiter' && (
-              <div>
-                <label htmlFor="orgName" className="block text-[13px] font-medium text-[#1A1A18]">
-                  Organization Name
-                </label>
-                <input
-                  id="orgName"
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
                   type="text"
                   required
-                  value={orgName}
-                  onChange={(e) => setOrgName(e.target.value)}
-                  className="mt-1 block w-full rounded-none border border-[#E5E5E3] bg-[#FAFAF9] px-3 py-2 text-[#1A1A18] placeholder-[#6B7280] focus:border-[#1A1A18] focus:outline-none focus:ring-1 focus:ring-[#1A1A18] sm:text-[13px]"
-                  placeholder="Acme Corp"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="John Doe"
                 />
               </div>
-            )}
-          </div>
 
-          {error && (
-            <div className="text-[13px] text-[#D97706] bg-[#FAFAF9] p-3 border border-[#E5E5E3]">
-              {error}
+              <div className="space-y-2">
+                <Label htmlFor="email">Email address</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+
+              {role === 'recruiter' && (
+                <div className="space-y-2">
+                  <Label htmlFor="orgName">Organization Name</Label>
+                  <Input
+                    id="orgName"
+                    type="text"
+                    required
+                    value={orgName}
+                    onChange={(e) => setOrgName(e.target.value)}
+                    placeholder="Acme Corp"
+                  />
+                </div>
+              )}
             </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="btn w-full mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? <LoadingSpinner /> : 'Sign Up'}
-          </button>
+            {error && (
+              <div className="text-[13px] text-destructive bg-destructive/10 p-3 rounded-md font-medium">
+                {error}
+              </div>
+            )}
 
-          <p className="text-left text-[13px] text-[#6B7280]">
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full"
+            >
+              {isLoading ? <LoadingSpinner /> : 'Sign Up'}
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="flex justify-center">
+          <p className="text-[13px] text-muted-foreground">
             Already have an account?{' '}
-            <button
-              type="button"
-              onClick={() => router.push('/login')}
-              className="text-[#1A1A18] hover:underline"
+            <Link
+              href="/login"
+              className="text-foreground font-medium hover:underline"
             >
               Sign in
-            </button>
+            </Link>
           </p>
-        </form>
-      </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

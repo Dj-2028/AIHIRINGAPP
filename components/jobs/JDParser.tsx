@@ -4,6 +4,8 @@ import { SkillChipList } from "./SkillChipList";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Sparkles } from "lucide-react";
 import type { SkillRef } from "@/types";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface JDParserProps {
   value?: SkillRef[];
@@ -47,43 +49,54 @@ export function JDParser({ value = [], onChange }: JDParserProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="relative">
-        <textarea
-          value={text}
-          onChange={(e) => { setText(e.target.value); setParsed(false); }}
-          placeholder="Paste your job description here… wait for the AI to parse the requirements."
-          rows={8}
-          className="w-full resize-none border border-[#E5E5E3] bg-[#FAFAF9] p-4 text-[13px] text-[#1A1A18] focus:border-[#1A1A18] outline-none transition-colors"
-        />
-        <span className="absolute bottom-3 right-3 text-[11px] font-mono text-[#6B7280]">
-          {text.length} chars
-        </span>
-      </div>
-
-      <button
-        onClick={handleParse}
-        disabled={loading || !text.trim()}
-        className="btn flex items-center gap-2"
-      >
-        {loading ? <LoadingSpinner /> : <Sparkles size={16} />}
-        {loading ? "Parsing requirements…" : "Extract Skills"}
-      </button>
-
-      {error && <p className="text-[13px] text-red-600 border border-red-200 bg-red-50 p-3">{error}</p>}
-
-      {parsed && skills.length === 0 && (
-        <p className="text-[13px] text-[#6B7280]">No skills detected. Try a more detailed job description.</p>
-      )}
-
-      {skills.length > 0 && (
-        <div className="p-6 border border-[#E5E5E3] bg-[#FAFAF9]">
-          <p className="text-[13px] font-medium text-[#1A1A18] mb-4">
-            {skills.length} skills extracted (Click × to modify)
-          </p>
-          <SkillChipList skills={skills} removable onRemove={handleRemove} />
+    <Card className="shadow-none">
+      <CardHeader>
+        <CardTitle className="text-xs tracking-widest text-muted-foreground uppercase font-normal">2. AI Requirements Parser</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="relative border border-input focus-within:ring-1 focus-within:ring-ring rounded-md overflow-hidden bg-background shadow-sm transition-colors">
+          <textarea
+            value={text}
+            onChange={(e) => { setText(e.target.value); setParsed(false); }}
+            placeholder="Paste your job description here… wait for the AI to parse the requirements."
+            rows={8}
+            className="flex w-full resize-none bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          />
+          <div className="absolute bottom-2 right-2 text-[10px] font-mono text-muted-foreground bg-background px-1 rounded-sm">
+            {text.length} chars
+          </div>
         </div>
-      )}
-    </div>
+
+        <Button
+          onClick={handleParse}
+          disabled={loading || !text.trim()}
+          className="w-full flex items-center justify-center gap-2"
+        >
+          {loading ? <LoadingSpinner /> : <Sparkles size={16} />}
+          {loading ? "Parsing requirements…" : "Extract Skills with Gemini"}
+        </Button>
+
+        {error && (
+          <p className="text-sm text-destructive border border-destructive/20 bg-destructive/10 p-3 rounded-md">
+            {error}
+          </p>
+        )}
+
+        {parsed && skills.length === 0 && (
+          <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-md bg-muted/20">
+            No skills detected. Try a more detailed job description.
+          </p>
+        )}
+
+        {skills.length > 0 && (
+          <div className="p-4 rounded-md border border-input bg-muted/10">
+            <p className="text-sm font-medium text-foreground mb-4">
+              {skills.length} skills extracted <span className="text-muted-foreground font-normal ml-1">(Click × to modify)</span>
+            </p>
+            <SkillChipList skills={skills} removable onRemove={handleRemove} />
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

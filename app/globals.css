@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -54,10 +53,16 @@ h1, h2, h3, h4, h5, h6 {
 /* Velocity Score Number */
 .velocity-score-huge {
   font-family: var(--font-mono);
-  font-size: 96px;
+  font-size: 64px;
   line-height: 1;
   color: var(--color-text-main);
   letter-spacing: -0.02em;
+}
+
+@media (min-width: 768px) {
+  .velocity-score-huge {
+    font-size: 96px;
+  }
 }
 
 /* Standard mono score (20px) */

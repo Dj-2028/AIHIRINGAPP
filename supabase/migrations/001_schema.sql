@@ -32,13 +32,21 @@ create table if not exists users (
 create or replace function handle_new_user()
 returns trigger language plpgsql security definer as $$
 begin
-  insert into users (id, email, role)
+  insert into public.users (id, email, role, full_name)
   values (
     new.id,
     new.email,
-    coalesce(new.raw_user_meta_data->>'role', 'candidate')
+    coalesce(new.raw_user_meta_data->>'role', 'candidate'),
+    new.raw_user_meta_data->>'full_name'
   )
   on conflict (id) do nothing;
+
+  if (coalesce(new.raw_user_meta_data->>'role', 'candidate') = 'candidate') then
+    insert into public.candidates (user_id)
+    values (new.id)
+    on conflict (user_id) do nothing;
+  end if;
+
   return new;
 end;
 $$;

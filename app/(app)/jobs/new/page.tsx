@@ -6,6 +6,10 @@ import { createBrowserClient } from '@/lib/supabase/client';
 import { JDParser } from '@/components/jobs/JDParser';
 import { useAppStore } from '@/store/useAppStore';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default function NewJobPage() {
   const router = useRouter();
@@ -50,7 +54,7 @@ export default function NewJobPage() {
         body: JSON.stringify({
           title,
           organization_id: orgId,
-          description: '', // JDParser text is just for parsing currently. We could store it too.
+          description: '', 
           seniority_level: seniority,
           parsedSkills
         }),
@@ -70,52 +74,51 @@ export default function NewJobPage() {
   };
 
   return (
-    <div className="p-8 max-w-4xl mx-auto space-y-8 bg-[#FAFAF9]">
-      <div className="border-b border-[#E5E5E3] pb-6">
-        <h1 className="text-2xl font-medium tracking-tight text-[#1A1A18] mb-1">Post a New Job</h1>
-        <p className="text-[13px] text-[#6B7280]">
+    <div className="p-8 max-w-5xl mx-auto space-y-8 bg-background">
+      <div className="border-b pb-6">
+        <h1 className="text-2xl font-medium tracking-tight mb-1">Post a New Job</h1>
+        <p className="text-sm text-muted-foreground">
           Paste your job description and let Gemini AI extract the required skills automatically.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-6">
-          <div className="bg-white border border-[#E5E5E3] p-6">
-            <h2 className="text-[13px] font-medium tracking-tight text-[#1A1A18] mb-4 uppercase">1. Job Details</h2>
-            <form id="job-form" onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-[13px] font-medium text-[#1A1A18] mb-1">
-                  Job Title
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full border border-[#E5E5E3] bg-[#FAFAF9] px-3 py-2 text-[13px] text-[#1A1A18] focus:border-[#1A1A18] focus:outline-none transition-colors"
-                  placeholder="e.g. Senior Frontend Engineer"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-[13px] font-medium text-[#1A1A18] mb-1">
-                  Seniority Level
-                </label>
-                <select
-                  value={seniority}
-                  onChange={(e) => setSeniority(e.target.value)}
-                  className="w-full border border-[#E5E5E3] bg-[#FAFAF9] px-3 py-2 text-[13px] text-[#1A1A18] focus:border-[#1A1A18] focus:outline-none transition-colors"
-                >
-                  <option value="Entry-Level">Entry-Level</option>
-                  <option value="Junior">Junior</option>
-                  <option value="Mid-Level">Mid-Level</option>
-                  <option value="Senior">Senior</option>
-                  <option value="Lead">Lead</option>
-                  <option value="Principal">Principal</option>
-                </select>
-              </div>
-            </form>
-          </div>
+          <Card className="shadow-none">
+            <CardHeader>
+              <CardTitle className="text-xs tracking-widest text-muted-foreground uppercase font-normal">1. Job Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form id="job-form" onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Job Title</Label>
+                  <Input
+                    type="text"
+                    required
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="e.g. Senior Frontend Engineer"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Seniority Level</Label>
+                  <select
+                    value={seniority}
+                    onChange={(e) => setSeniority(e.target.value)}
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="Entry-Level">Entry-Level</option>
+                    <option value="Junior">Junior</option>
+                    <option value="Mid-Level">Mid-Level</option>
+                    <option value="Senior">Senior</option>
+                    <option value="Lead">Lead</option>
+                    <option value="Principal">Principal</option>
+                  </select>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="space-y-6">
@@ -124,20 +127,20 @@ export default function NewJobPage() {
       </div>
 
       {error && (
-        <div className="p-4 border border-red-200 bg-red-50 text-[13px] text-red-600">
+        <div className="p-4 rounded-md border border-destructive/20 bg-destructive/10 text-sm text-destructive">
           {error}
         </div>
       )}
 
-      <div className="flex justify-end pt-4 border-t border-[#E5E5E3]">
-        <button
+      <div className="flex justify-end pt-4 border-t mt-8">
+        <Button
           type="submit"
           form="job-form"
           disabled={isSubmitting || parsedSkills.length === 0}
-          className="btn flex items-center gap-2"
+          className="flex items-center gap-2"
         >
           {isSubmitting ? <LoadingSpinner /> : 'Post Job & Start Ranking'}
-        </button>
+        </Button>
       </div>
     </div>
   );

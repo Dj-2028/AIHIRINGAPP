@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
 import { SkillEntryForm } from "./SkillEntryForm";
-import { Trash2, Plus, Calendar } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import type { SkillEntry } from "@/types";
 import { format } from "date-fns";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface SkillTimelineBuilderProps {
   entries: SkillEntry[];
@@ -28,6 +30,13 @@ export function SkillTimelineBuilder({ entries: initial, candidateId, onEntriesC
       const updated = [...entries, saved];
       setEntries(updated);
       onEntriesChange?.(updated);
+      
+      // Feature Audit [Priority 4]: Trigger score regeneration whenever timelines shift
+      fetch("/api/candidates/score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ candidateId }),
+      });
     }
     setShowForm(false);
     setSaving(false);
@@ -38,35 +47,42 @@ export function SkillTimelineBuilder({ entries: initial, candidateId, onEntriesC
     const updated = entries.filter((e) => e.id !== id);
     setEntries(updated);
     onEntriesChange?.(updated);
+    
+    // Also trigger on delete
+    fetch("/api/candidates/score", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ candidateId }),
+    });
   };
 
   return (
     <div className="space-y-3">
       {entries.length === 0 && !showForm && (
-        <div className="text-center py-10 border border-[#E5E5E3] bg-[#FAFAF9] text-[#6B7280]">
-          <p className="text-[13px]">No skills added yet.</p>
-        </div>
+        <Card className="text-center py-10 shadow-none border-dashed bg-muted/20">
+          <p className="text-sm text-muted-foreground">No skills added yet.</p>
+        </Card>
       )}
 
       {entries.map((e) => (
-        <div
+        <Card
           key={e.id}
-          className="flex items-center justify-between p-4 border border-[#E5E5E3] bg-[#FAFAF9]"
+          className="flex items-center justify-between p-4 shadow-none rounded-md"
         >
           <div className="flex items-center gap-4">
             <div>
-              <p className="text-[13px] font-medium text-[#1A1A18] mb-0.5">{e.skill_name}</p>
-              <p className="text-[11px] font-mono text-[#6B7280]">
+              <p className="text-sm font-medium mb-0.5">{e.skill_name}</p>
+              <p className="text-xs font-mono text-muted-foreground">
                 {format(new Date(e.learned_from), "MMM yyyy")}
                 {e.learned_to && ` -> ${format(new Date(e.learned_to), "MMM yyyy")}`}
                 {e.days_to_learn && ` · ${e.days_to_learn}d`}
               </p>
             </div>
           </div>
-          <button onClick={() => handleDelete(e.id)} className="text-[#6B7280] hover:text-[#1A1A18] transition-colors">
-            <Trash2 size={14} />
-          </button>
-        </div>
+          <Button variant="ghost" size="icon" onClick={() => handleDelete(e.id)} className="text-muted-foreground hover:text-destructive shrink-0">
+            <Trash2 size={16} />
+          </Button>
+        </Card>
       ))}
 
       {showForm && (
@@ -78,12 +94,12 @@ export function SkillTimelineBuilder({ entries: initial, candidateId, onEntriesC
       )}
 
       {!showForm && (
-        <button
+        <Button
           onClick={() => setShowForm(true)}
-          className="btn"
+          disabled={saving}
         >
           Add Skill
-        </button>
+        </Button>
       )}
     </div>
   );

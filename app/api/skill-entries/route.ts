@@ -26,12 +26,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Candidate not found or forbidden" }, { status: 403 });
     }
 
+    let validSkillId = null;
+    if (skill_id) {
+      const { data: skillRow } = await supabase.from("skills").select("id").eq("id", skill_id).maybeSingle();
+      if (skillRow) {
+        validSkillId = skillRow.id;
+      }
+    }
+
     const { data, error } = await supabase
       .from("skill_entries")
       .insert({
         candidate_id,
         skill_name,
-        skill_id: skill_id ?? null,
+        skill_id: validSkillId,
         learned_from,
         learned_to: learned_to ?? null,
         source: source ?? "self-reported",
