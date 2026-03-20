@@ -1,0 +1,13 @@
+{
+  "css.customData": [".vscode/tailwind.json"],
+  "css.lint.unknownAtRules": "ignore",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "deno.enable": false,
+  "deno.path": "C:\\Users\\Diksha Jain\\.deno\\bin\\deno.exe",
+  "deno.enablePaths": ["supabase/functions"],
+  "deno.unstable": ["kv", "http"],
+  "deno.config": "supabase/functions/deno.json"
+}
+
+
+

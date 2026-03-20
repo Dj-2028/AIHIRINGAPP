@@ -1,0 +1,3 @@
+app/api/applications/[id]/route.ts(2,10): error TS2305: Module '"@/lib/supabase/server"' has no exported member 'createClient'.
+app/api/jobs/[jobId]/leaderboard/route.ts(2,10): error TS2305: Module '"@/lib/supabase/server"' has no exported member 'createClient'.
+app/api/skill-entries/[id]/route.ts(2,10): error TS2305: Module '"@/lib/supabase/server"' has no exported member 'createClient'.
